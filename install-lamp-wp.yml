@@ -1,0 +1,13 @@
+---
+ - hosts: server
+   vars_files:
+      - global_vars.yml
+
+   #Divide playbook into smaller sections (roles)
+   roles:
+     - common
+     - apache2
+     - mysql
+     - postfix
+     - proftpd
+     - wordpress

@@ -1,0 +1,20 @@
+---
+- name: Install Apache2
+  action: apt pkg={{ item }} state=present
+  with_items:
+  - apache2-mpm-prefork
+  - php5-gd
+  - php5-mysql
+  - php5-curl
+  - php5-mcrypt  
+  - php5
+  - libapache2-mod-php5
+
+- name: enables the Apache2 modules
+  action: apache2_module state=present name={{ item }}
+  with_items:
+  - rewrite
+  - headers
+  - expires
+  notify:
+  - restart apache2

@@ -1,0 +1,21 @@
+---
+ - name: Upgrade Debian
+   apt: upgrade=dist update_cache=yes
+
+ - name: Install common packages
+   action: apt pkg={{ item }} state=present
+   with_items:
+   - curl
+   - locate
+   - locales-all
+
+ - name: add linux user
+   user: 'uid=1000 name={{ ansible_www_user }} password={{ ansible_user_pass }} shell=/bin/bash home=/home/{{ ansible_www_user }}'
+
+ - name: locales preseeds too setup UTF-8
+   debconf: name=locales question='locales/default_environment_locale' vtype='select' value='en_US.UTF-8'
+   notify:
+   - dpkg-reconfigure-locales
+
+ - name: Add correct /etc/hosts entry
+   lineinfile: dest=/etc/hosts regexp="^{{ ansible_ip }}" line="{{ ansible_ip }} {{ ansible_www_domain }} {{ ansible_hostname }}"
