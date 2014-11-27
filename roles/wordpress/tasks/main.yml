@@ -15,12 +15,12 @@
   file: dest=/home/{{ ansible_www_user }}/{{ ansible_www_domain }} mode=755 owner={{ ansible_www_user }} group={{ ansible_www_user }} state=directory
 
 - name: download latest Wordpress tarball
-  get_url: url=https://wordpress.org/latest.tar.gz dest=/home/{{ ansible_www_user }}/ mode=0644
+  get_url: url=https://wordpress.org/latest.tar.gz dest=/home/{{ ansible_www_user }}/wordpress-latest.tar.gz force=yes mode=0644
   sudo: yes
   sudo_user: "{{ ansible_www_user }}"
 
 - name: extract the wordpress tarball
-  unarchive: src=/home/{{ ansible_www_user }}/latest.tar.gz dest=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/ copy=no creates=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/
+  unarchive: src=/home/{{ ansible_www_user }}/wordpress-latest.tar.gz dest=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/ copy=no creates=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/
   sudo: yes
   sudo_user: "{{ ansible_www_user }}"
 
