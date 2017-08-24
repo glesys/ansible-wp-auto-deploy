@@ -16,13 +16,13 @@
 
 - name: download latest Wordpress tarball
   get_url: url=https://wordpress.org/latest.tar.gz dest=/home/{{ ansible_www_user }}/wordpress-latest.tar.gz force=yes mode=0644
-  sudo: yes
-  sudo_user: "{{ ansible_www_user }}"
+  become: yes
+  become_user: "{{ ansible_www_user }}"
 
 - name: extract the wordpress tarball
   unarchive: src=/home/{{ ansible_www_user }}/wordpress-latest.tar.gz dest=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/ copy=no creates=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/
-  sudo: yes
-  sudo_user: "{{ ansible_www_user }}"
+  become: yes
+  become_user: "{{ ansible_www_user }}"
 
 - name: rename wordpress unpacked folder to public_html
   command: mv wordpress/ public_html/
@@ -38,8 +38,8 @@
 
 - name: install.php with wp-cli.phar
   shell: chdir=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/ wp core install --title="{{ ansible_wp_title  }}" --url={{ ansible_www_domain }} --admin_name={{ ansible_wp_user  }} --admin_email={{ ansible_wp_email  }} --admin_password={{ ansible_wp_pass  }}
-  sudo: yes
-  sudo_user: "{{ ansible_www_user }}"
+  become: yes
+  become_user: "{{ ansible_www_user }}"
 
 - name: Pushes vhost
   template: src=vhost.conf.j2 dest=/etc/apache2/sites-available/{{ ansible_www_domain }}.conf mode=0640 owner=root group=root
