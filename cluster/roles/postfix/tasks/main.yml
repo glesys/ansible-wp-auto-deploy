@@ -1,0 +1,22 @@
+---
+- name: Postfix preseeds
+  action: debconf name=postfix question='{{ item.question }}' vtype='{{ item.vtype }}' value='{{ item.value }}'
+  with_items:
+    - { question: 'postfix/rfc1035_violation', vtype: 'boolean', value: 'false' }
+    - { question: 'postfix/chattr', vtype: 'boolean', value: 'false' }
+    - { question: 'postfix/procmail', vtype: 'boolean', value: 'false' }
+    - { question: 'postfix/mynetworks', vtype: 'string', value: '127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128' }
+    - { question: 'postfix/mailbox_limit', vtype: 'string', value: '0' }
+    - { question: 'postfix/mailname', vtype: 'string', value: '{{ ansible_fqdn }}' }
+    - { question: 'postfix/recipient_delim', vtype: 'string', value: '+' }
+    - { question: 'postfix/destinations', vtype: 'string', value: 'localhost' }
+    - { question: 'postfix/protocols', vtype: 'select', value: 'all' }
+    - { question: 'postfix/main_mailer_type', vtype: 'select', value: 'Internet Site' }
+
+- name: Install Postfix
+  apt: pkg=postfix state=present
+
+- name: Install Postfix
+  template: src=main.cf.j2 dest=/etc/postfix/main.cf mode=0644 owner=root group=root
+  notify:
+  - restart Postfix

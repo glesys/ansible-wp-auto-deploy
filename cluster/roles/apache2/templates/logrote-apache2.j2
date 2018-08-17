@@ -1,0 +1,18 @@
+/home/{{ ansible_www_user }}/logs/*log {
+        weekly
+        missingok
+        rotate 5
+        compress
+        delaycompress
+        notifempty
+        create 640 {{ ansible_www_user }} {{ ansible_www_user }}
+        sharedscripts
+        postrotate
+                /etc/init.d/apache2 reload > /dev/null
+        endscript
+        prerotate
+                if [ -d /etc/logrotate.d/httpd-prerotate ]; then \
+                        run-parts /etc/logrotate.d/httpd-prerotate; \
+                fi; \
+        endscript
+}

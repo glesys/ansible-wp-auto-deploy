@@ -1,0 +1,14 @@
+<VirtualHost *:80>
+ServerName {{ ansible_www_domain }}
+ServerAlias www.{{ ansible_www_domain }}
+
+DocumentRoot /home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html
+
+        <Directory /home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html>
+                Options -Indexes FollowSymLinks MultiViews
+                AllowOverride All
+                Order allow,deny
+                allow from all
+        </Directory>
+
+</VirtualHost>

@@ -1,0 +1,12 @@
+[{{ ansible_www_user }}]
+user = {{ ansible_www_user }}
+group = {{ ansible_www_user }}
+listen = /var/run/{{ ansible_www_user }}.sock
+listen.owner = www-data
+listen.group = www-data
+pm = dynamic
+pm.max_children = 250
+pm.start_servers = 15
+pm.min_spare_servers = 5
+pm.max_spare_servers = 30
+chdir = /

@@ -1,0 +1,3 @@
+---
+- name: restart ProFTPD
+  service: name=proftpd state=restarted sleep=5

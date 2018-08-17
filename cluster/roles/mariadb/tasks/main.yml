@@ -1,0 +1,17 @@
+---
+- name: MariaDB prereqs
+  action: apt pkg={{ item }} state=present
+  with_items:
+  - python-mysqldb
+
+- name: Install MariaDB
+  apt: pkg=mariadb-server state=present
+ 
+- name: Bind mysql to all
+  replace:
+    path: "/etc/mysql/mariadb.conf.d/50-server.cnf"
+    regexp: "127.0.0.1"
+    replace: "0.0.0.0"
+    backup: yes
+  notify:
+  - restart mysql 

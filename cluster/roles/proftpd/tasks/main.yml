@@ -1,0 +1,15 @@
+- name: proftpd preseed
+  debconf: name=proftpd-basic question='shared/proftpd/inetd_or_standalone' vtype='select' value='standalone'
+
+- name: Install ProFTPD
+  apt: pkg=proftpd-basic state=present
+
+- name: Name FTP Server
+  lineinfile: dest=/etc/proftpd/proftpd.conf regexp=^ServerName line="ServerName                      {{ ansible_www_domain  }}"
+  notify:
+  - restart ProFTPD
+
+- name: enable chroot in proftpd
+  lineinfile: dest=/etc/proftpd/proftpd.conf regexp="# DefaultRoot" line="DefaultRoot                   ~"
+  notify:
+  - restart ProFTPD
