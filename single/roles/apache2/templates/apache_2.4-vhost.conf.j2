@@ -1,0 +1,24 @@
+<VirtualHost {{ ansible_default_ipv4['address'] }}:80>
+ServerName {{ ansible_www_domain }}
+ServerAlias www.{{ ansible_www_domain }}
+
+DocumentRoot /home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html
+
+        <Directory /home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html>
+                Options -Indexes +FollowSymLinks +MultiViews
+                AllowOverride All
+                Require all granted
+
+                <files xmlrpc.php>
+	                Require all denied
+                </files>
+
+	        #PHP-FPM Socket
+	        <FilesMatch \.php$>
+	        SetHandler "proxy:unix:/var/run/{{ ansible_www_user }}.sock|fcgi://localhost/"
+	        </FilesMatch>
+        </Directory>
+
+        CustomLog /home/{{ ansible_www_user }}/logs/{{ ansible_www_domain }}-access.log combined
+        ErrorLog /home/{{ ansible_www_user }}/logs/{{ ansible_www_domain }}-error.log
+</VirtualHost>

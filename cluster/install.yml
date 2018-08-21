@@ -8,11 +8,12 @@
   
 - name: Web servers
   hosts: web_servers
+  serial: 1
   roles:
   - common
   - apache2
   - postfix
-  - proftpd
+ # - proftpd
   - filestorage
   - wordpress
 

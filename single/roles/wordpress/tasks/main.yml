@@ -4,12 +4,13 @@
   with_items:
   - python-mysqldb
   - sudo
+  - mysql-client
 
 - name: create a new database
-  mysql_db: login_user=root login_password={{ ansible_mysql_password }} name={{ ansible_dbname }} state=present
+  mysql_db: name={{ ansible_dbname }} state=present
 
 - name: create database user
-  mysql_user: login_user=root login_password={{ ansible_mysql_password }} name={{ ansible_dbuser }} password={{ ansible_dbuser_pass }} priv={{ ansible_dbname }}.*:ALL state=present
+  mysql_user: name={{ ansible_dbuser }} password={{ ansible_dbuser_pass }} priv={{ ansible_dbname }}.*:ALL state=present host="localhost"
 
 - name: create docroot
   file: dest=/home/{{ ansible_www_user }}/{{ ansible_www_domain }} mode=755 owner={{ ansible_www_user }} group={{ ansible_www_user }} state=directory
@@ -18,7 +19,7 @@
   get_url: url=https://wordpress.org/latest.tar.gz dest=/home/{{ ansible_www_user }}/wordpress-latest.tar.gz force=yes mode=0644
   become: yes
   become_user: "{{ ansible_www_user }}"
-
+ 
 - name: extract the wordpress tarball
   unarchive: src=/home/{{ ansible_www_user }}/wordpress-latest.tar.gz dest=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/ copy=no creates=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/
   become: yes
@@ -40,17 +41,9 @@
   shell: chdir=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/ wp core install --title="{{ ansible_wp_title  }}" --url={{ ansible_www_domain }} --admin_name={{ ansible_wp_user  }} --admin_email={{ ansible_wp_email  }} --admin_password={{ ansible_wp_pass  }}
   become: yes
   become_user: "{{ ansible_www_user }}"
-
-- name: Pushes vhost
-  template: src=vhost.conf.j2 dest=/etc/apache2/sites-available/{{ ansible_www_domain }}.conf mode=0640 owner=root group=root
-
-- name: disable the default Apache2 vhost
-  file: path=/etc/apache2/sites-enabled/000-default state=absent
-  notify:
+  notify: 
   - restart apache2
+  - restart php7.0-fpm
 
-- name: enable new Apache2 vhost
-  file: src=../sites-available/{{ ansible_www_domain }}.conf dest=/etc/apache2/sites-enabled/{{ ansible_www_domain }}.conf owner=root group=root state=link force=yes
-  notify:
-  - restart apache2
+
 

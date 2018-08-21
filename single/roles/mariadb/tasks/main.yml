@@ -1,0 +1,9 @@
+---
+- name: MariaDB prereqs
+  action: apt pkg={{ item }} state=present
+  with_items:
+  - python-mysqldb
+
+- name: Install MariaDB
+  apt: pkg=mariadb-server state=present
+ 

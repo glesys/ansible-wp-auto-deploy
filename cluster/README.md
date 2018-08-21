@@ -16,9 +16,10 @@ This is an automated procedure to:
 #### Step 1 – API Key
   * create a GleSYS API key with IP, DOMAIN and SERVER privilegies (Permissions / Allow all on Domain, IP, load balancer, filestorage and Server)
   * use a domain which is maintained on your GleSYS project  (record should not pre-exist) if it does it wouldn't be changed.
+  * If the domain is not maintained on your GleSYS project you will need to an A record for this cluster manulally.
 
 #### Step 2 - Requirements (where you initiate the script)
-  * Ansible 1.7
+  * Ansible 2
   * Sshpass
   * PWGen
   * XMLStarlet
@@ -40,27 +41,24 @@ Below are installation instructions for Debian/Ubuntu and MacOS X. However, it's
 	brew install xmlstarlet
 	brew install nmap
 	brew install pwgen
-	brew install https://raw.github.com/eugeneoden/homebrew/eca9de1/Library/Formula/sshpass.rb (Homebrew doesn't want to merge this https://github.com/Homebrew/homebrew/pull/9577 but it's what Ansible uses)
+	brew create https://sourceforge.net/projects/sshpass/files/sshpass/1.06/sshpass-1.06.tar.gz --force
+	brew install sshpass
 	brew install python
 	pip install passlib
 
 #### Step 3 - Download and run the script
 First download the script:
 
-	git clone git clone https://github.com/GleSYS/wp-auto-deploy.git
+	git clone https://github.com/GleSYS/wp-auto-deploy.git
+	cd cluster/
 
-Then add your API credentials to ./cluster/deploy.sh where it says:
-```
-	#API Credentials 
-	
-	API_USER="PLACE YOUR GLESYS PROJECT ID HERE: "
-	API_KEY="PLACE YOUR API KEY HERE: "
+Finally, run the script ./deploy.sh (be sure to meet the requirements above) and don't forget to put your API Credentials :
 
 ```
-Finally, run the script (be sure to meet the requirements above):
-
-	./deploy.sh USERNAME FQDN (for example: ./deploy.sh wp_user blog.domain.com)
-
+	API_USER="PLACE YOUR GLESYS PROJECT ID HERE" \
+	API_KEY="PLACE YOUR API KEY HERE" \
+	./deploy.sh USERNAME FQDN  # (for example: ./deploy.sh wp_user blog.domain.com)
+```
 ## This will be installed on the remote host
 
 	- Two or more web servers
@@ -68,7 +66,6 @@ Finally, run the script (be sure to meet the requirements above):
 		Apache 2.4
 		PHP 7.0
 		Postfix (SMTP)
-		ProFTPD (FTP server)
 		Latest WordPress (post-setup config is done with http://wp-cli.org )
 	
 	- One database server

@@ -28,17 +28,18 @@
   when: db_server is not defined 
  
 - name: extract the wordpress tarball
-  unarchive: src=/home/{{ ansible_www_user }}/wordpress-latest.tar.gz dest=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/ copy=no creates=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/
+  unarchive: src=/home/{{ ansible_www_user }}/wordpress-latest.tar.gz dest=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/ copy=no creates=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/index.php
   become: yes
   become_user: "{{ ansible_www_user }}"
   when: db_server is not defined 
 
-- name: rename wordpress unpacked folder to public_html
-  command: mv wordpress/ public_html/
-  args:
-    chdir: /home/{{ ansible_www_user }}/{{ ansible_www_domain }}/
-    creates: /home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/
+- name: Sync wordpress unpacked folder to public_html
+  synchronize: src="/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/wordpress/" dest="/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/"
   when: db_server is not defined 
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: remove wordpress source 
+  file: path="/home/{{ ansible_www_user }}/wordpress/" state=absent
 
 - name: add wp-cli to /usr/local/bin
   copy: src=wp dest=/usr/local/bin/wp mode=755 owner=root group=root

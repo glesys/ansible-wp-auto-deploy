@@ -19,7 +19,7 @@ This is an automated procedure to:
 
 #### Step 2 - Requirements (where you initiate the script)
 
-   * Ansible 1.7
+   * Ansible 2
    * Sshpass
    * PWGen
    * XMLStarlet
@@ -45,7 +45,8 @@ Below are installation instructions for Debian/Ubuntu and MacOS X. However, it's
 	brew install xmlstarlet
 	brew install nmap
 	brew install pwgen
-	brew install https://raw.github.com/eugeneoden/homebrew/eca9de1/Library/Formula/sshpass.rb (Homebrew doesn't want to merge this https://github.com/Homebrew/homebrew/pull/9577 but it's what Ansible uses)
+	brew create https://sourceforge.net/projects/sshpass/files/sshpass/1.06/sshpass-1.06.tar.gz --force
+	brew install sshpass
 	brew install python
 	pip install passlib
 
@@ -57,31 +58,26 @@ First download the script:
 
 	git clone https://github.com/GleSYS/wp-auto-deploy.git
 
+	cd single/
 
-Then add your API credentials to deploy.sh where it says:
+Finally, run the script ./deploy.sh (be sure to meet the requirements above) and don't forget to put your API Credentials :
 
-
-	#API Credentials
-	USER=PLACE_YOUR_ACCOUNT_HERE
-	KEY=PLACE_YOUR_KEY_HERE
-
-
-Finally, run the script (be sure to meet the requirements above):
-
-
-	./deploy.sh FQDN (for example: ./deploy.sh blog.domain.com)
+```
+	API_USER="PLACE YOUR GLESYS PROJECT ID HERE" \
+	API_KEY="PLACE YOUR API KEY HERE" \
+	./deploy.sh USERNAME FQDN  # (for example: ./deploy.sh wp_user blog.domain.com)
+```
 
 
 ## This will be installed on the remote host
 
 
-   * Debian 7 as template (you can edit the Ansible Playbook to make it compatible with other distributions)
-   * Apache 2.2
-   * MySQL 5.5
-   * PHP 5.4.0
-   * Postfix (SMTP)
-   * ProFTPd (FTP Server)
-   * Latest WordPress (post-setup config is done with http://wp-cli.org)
+	Debian 9 as template
+	Apache 2.4
+	PHP 7.0
+	Postfix (SMTP)
+	Latest WordPress (post-setup config is done with http://wp-cli.org )
+	MariaDB 10
 
 
 ## GleSYS API calls used for this demo
@@ -95,6 +91,4 @@ Finally, run the script (be sure to meet the requirements above):
 
 ## Support
 
-
-   * watch this instructional video: [Server Provisioning with GleSYS API & Ansible](http://vimeo.com/116329707)
    * if you need further help send an email to support@glesys.se

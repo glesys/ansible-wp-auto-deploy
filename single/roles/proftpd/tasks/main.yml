@@ -13,4 +13,3 @@
   lineinfile: dest=/etc/proftpd/proftpd.conf regexp="# DefaultRoot" line="DefaultRoot                   ~"
   notify:
   - restart ProFTPD
-

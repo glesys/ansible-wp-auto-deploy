@@ -5,9 +5,9 @@
 
    #Divide playbook into smaller sections (roles)
    roles:
-     - common
-     - apache2
-     - mysql
-     - postfix
-     - proftpd
-     - wordpress
+   - common
+   - apache2
+   - mariadb
+   - postfix
+ # - proftpd
+   - wordpress

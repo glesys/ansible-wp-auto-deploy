@@ -1,9 +1,9 @@
 #!/bin/bash
-#set -x
+# set -x
 
 ### API Credentials
-API_USER="PLACE YOUR GLESYS PROJECT ID HERE"   
-API_KEY="PLACE YOUR API KEY HERE" 
+# API_USER="PLACE YOUR GLESYS PROJECT ID HERE"   
+# API_KEY="PLACE YOUR API KEY HERE" 
 
 
 
@@ -43,7 +43,7 @@ else
 fi
 ### WordPress info. Feel free to edite!
 wp_user="$FTP_USERNAME"
-wp_email="$FTP_USERNAME@$FQDN"
+wp_email="$FTP_USERNAME@$DOMAIN"
 wp_title="DEFAULT TITLE"
 
 
@@ -71,7 +71,7 @@ done
 
 API_USER=`echo $API_USER | sed "s# ##g"`
 API_KEY=`echo $API_KEY | sed "s# ##g"`
-if  [[ -z $API_USER ]] | [[ $API_USER == "PLACEYOURGLESYSPROJECTIDHERE" ]]; then
+if  [[ -z $API_USER ]]; then
 echo "GleSYS project ID not defined"
 echo "Please read readme.txt for more info."
 exit 1
@@ -182,16 +182,16 @@ mkdir -p services_details
 # creating File-storage
 echo "creating File-storage ........."
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "datacenter=$DATACENTER" --data-urlencode "name=fs-$FQDN" --data-urlencode "planid=3b2064e5-a216-44d6-abb9-af4d501cb52c" https://api.glesys.com/filestorage/createvolume/ > services_details/filestorage.xml
-sleep 3
+
 
 # creating Load Balancer 
 echo "creating Load Balancer ........."
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "name=lb-$FQDN" --data-urlencode "ip=any" --data-urlencode "datacenter=$DATACENTER" https://api.glesys.com/loadbalancer/create/ > services_details/lb.xml
-sleep 3
+
 # creating Database server.
 echo "creating Database server ........."
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "datacenter=Falkenberg" --data-urlencode "platform=OpenVZ" --data-urlencode "hostname=db.$FQDN" --data-urlencode "rootpassword=$ROOTPASS" --data-urlencode "templatename=$TEMPLATE" --data-urlencode "disksize=$DISKSIZE" --data-urlencode "memorysize=$MEMORYSIZE" --data-urlencode "cpucores=$CPUCORES" https://api.glesys.com/server/create/ > services_details/db_server.xml
-sleep 3
+
 
 # creating web servers.
 while_var1=$web_num
@@ -200,7 +200,7 @@ do
 while_var2=$(( $web_num - $while_var1 ))
 echo "creating web server $(( $while_var2 + 1 )) ........."
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "datacenter=Falkenberg" --data-urlencode "platform=OpenVZ" --data-urlencode "hostname=web$(( $while_var2 + 1 )).$FQDN" --data-urlencode "rootpassword=$ROOTPASS" --data-urlencode "templatename=$TEMPLATE" --data-urlencode "disksize=$DISKSIZE" --data-urlencode "memorysize=$MEMORYSIZE" --data-urlencode "cpucores=$CPUCORES" https://api.glesys.com/server/create/ > services_details/web_server_$(( $while_var2 + 1 )).xml
-sleep 3
+
 while_var1=$[$while_var1-1]
 done
 
@@ -280,7 +280,7 @@ while_var1=$[$while_var1-1]
 done
 echo "Adding web servers to filestorage accesslist ........"
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "volumeid=$FS_VOLUMEID" --data-urlencode "accesslist=$FS_ACCESSLIST" https://api.glesys.com/filestorage/editvolume/ >  /dev/null 2>&1
-sleep 3
+
 
 
 
@@ -323,7 +323,7 @@ while_var1=$[$while_var1-1]
 done
 echo "Adding FrontEnd....."
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "loadbalancerid=$LB_ID" --data-urlencode "name=$LB_ID.front" --data-urlencode "port=80" --data-urlencode "backendname=$LB_ID.back" https://api.glesys.com/loadbalancer/addfrontend/ >  /dev/null 2>&1
-sleep 3
+
 
 nfs_mount=$FS_VOLUMEID
 www_domain=$FQDN

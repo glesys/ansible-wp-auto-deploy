@@ -16,7 +16,7 @@
 - name: Install Postfix
   apt: pkg=postfix state=present
 
-- name: add Postfix config
+- name: Install Postfix
   template: src=main.cf.j2 dest=/etc/postfix/main.cf mode=0644 owner=root group=root
   notify:
   - restart Postfix

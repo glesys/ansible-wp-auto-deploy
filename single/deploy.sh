@@ -1,9 +1,30 @@
 #!/bin/bash
+# set -x
+### API Credentials
+# API_USER="PLACE YOUR GLESYS PROJECT ID HERE"   
+# API_KEY="PLACE YOUR API KEY HERE"
+ 
 
-if [ -z $1 ]; then
-        echo "syntax is: ./deploy.sh FQDN (./deploy.sh blog.domain.com)"
+
+
+
+#Servers Creation Variables:
+web_num=2 # HOW MANY WEB SERVERS DO YOU WANT
+DATACENTER=Falkenberg
+PLATFORM=OpenVZ
+TEMPLATE="Debian 9 64-bit"	#DONT CHANGE THIS
+DISKSIZE=20
+MEMORYSIZE=2048
+CPUCORES=2
+ROOTPASS=`pwgen -Bs 15 1`	# YOU CAN WRITE YOUR OWN PASSWORD IF YOU LIKE  # ROOTPASS="THISISPASSWORD"
+############################
+
+if [ -z $2 ]; then
+        echo "syntax is: ./deploy.sh USER FQDN (./deploy.sh username blog.domain.com)"
         exit
 fi
+
+
 
 #Check if dependencies are in place.
 for BINARY in pwgen ansible-playbook xmlstarlet curl sshpass nmap ; do
@@ -14,14 +35,15 @@ for BINARY in pwgen ansible-playbook xmlstarlet curl sshpass nmap ; do
         fi
 done
 
+FTP_USERNAME=$1
 #DOMAIN
-FQDN=$1
+FQDN=$2
 # Validate provided FQDN
-if [[ $FQDN =~ ^[A-Za-z0-9]+\..+\..+ ]]; then
+if [[ $FQDN =~ ^[A-Za-z0-9]+.+\..+ ]]; then
         HOSTNAME=`echo "$FQDN" | cut -f1 -d.`
         DOMAIN=`expr "$FQDN" | cut -f2- -d.`
 else
-        echo "not a correct FQDN (ie. www.domain.com, wp.domain.com)"
+        echo "not a correct FQDN (ie. domain.com)"
         exit 1
 fi
 
@@ -36,39 +58,24 @@ if [ "$STATUSCODE" -ne 200 ]; then
 fi
 }
 
-#VARIABLES
-
-#Api Credentials
-USER=PLACE_YOUR_ACCOUNT_HERE
-KEY=PLACE_YOUR_KEY_HERE
-
-#Add Server Creation Variables:
-DATACENTER=Falkenberg
-PLATFORM=OpenVZ
-TEMPLATE="Debian 7.0 64-bit" 	#DONT CHANGE THIS
-DISKSIZE=20
-MEMORYSIZE=2048
-CPUCORES=2
-ROOTPASS=`pwgen -Bs 15 1`
-
 #Add site Variables
-SSHUSER=wordpress
+SSHUSER=$FTP_USERNAME
 SSHUSERPASS_PLAIN=`pwgen -Bs 15 1`
 #Encrypt user password (linux compat.)
 SSHUSERPASS=`python -c 'from passlib.hash import sha512_crypt; print sha512_crypt.encrypt("'$SSHUSERPASS_PLAIN'")'`
 MYSQLPASS=`pwgen -Bs 15 1`
-DBNAME=wordpress
-DBUSER=wordpress
+DBNAME=db_$SSHUSER
+DBUSER=$SSHUSER
 DBPASS=`pwgen -Bs 15 1`
 
 #Wordpress Variables
 TITLE="WordPress Demo"
 ADMINUSER=$SSHUSER
 ADMINPASS=$SSHUSERPASS_PLAIN
-EMAIL="$SSHUSER"@"$DOMAIN"
+EMAIL="$FTP_USERNAME@$DOMAIN"
 
 #API call to retrieve list of records for the domain.
-curl -sS -X POST -d "domainname="$DOMAIN"" -k --basic -u $USER:$KEY https://api.glesys.com/domain/listrecords/ > server.xml
+curl -sS -X POST -d "domainname="$DOMAIN"" -k --basic -u $API_USER:$API_KEY https://api.glesys.com/domain/listrecords/ > server.xml
 #Run function to validate the response
 validate_xml
 
@@ -80,7 +87,7 @@ fi
 
 #Create Server and store IP
 echo "Creating Server"
-curl -sS -X POST -d "datacenter="$DATACENTER"&platform="$PLATFORM"&hostname="$HOSTNAME"."$DOMAIN"&templatename=$TEMPLATE&disksize="$DISKSIZE"&memorysize="$MEMORYSIZE"&cpucores="$CPUCORES"&rootpassword="$ROOTPASS"" -k --basic -u $USER:$KEY https://api.glesys.com/server/create/ > server.xml
+curl -sS -X POST -d "datacenter="$DATACENTER"&platform="$PLATFORM"&hostname="$HOSTNAME"."$DOMAIN"&templatename=$TEMPLATE&disksize="$DISKSIZE"&memorysize="$MEMORYSIZE"&cpucores="$CPUCORES"&rootpassword="$ROOTPASS"" -k --basic -u $API_USER:$API_KEY https://api.glesys.com/server/create/ > server.xml
 #Run function to validate the response
 validate_xml
 
@@ -92,13 +99,13 @@ SERVERIP=`xmlstarlet sel -t -v "/item/ipaddress" serverip.xml`
 
 #Create A-Record with Server IP.
 echo "Creating A-record for subdomain"
-curl -sS -X POST -d "domainname="$DOMAIN"&host="$HOSTNAME"&type=A&data="$SERVERIP"" -k --basic -u $USER:$KEY https://api.glesys.com/domain/addrecord/ > server.xml
+curl -sS -X POST -d "domainname="$DOMAIN"&host="$HOSTNAME"&type=A&data="$SERVERIP"" -k --basic -u $API_USER:$API_KEY https://api.glesys.com/domain/addrecord/ > server.xml
 #Run function to validate the response
 validate_xml
 
 #Set PTR for the IP
 echo "Setting PTR for the IP."
-curl -sS -X POST -d "ipaddress="$SERVERIP"&data="$HOSTNAME"."$DOMAIN"." -k --basic -u $USER:$KEY https://api.glesys.com/ip/setptr/ > server.xml
+curl -sS -X POST -d "ipaddress="$SERVERIP"&data="$HOSTNAME"."$DOMAIN"." -k --basic -u $API_USER:$API_KEY https://api.glesys.com/ip/setptr/ > server.xml
 #Run function to validate the response
 validate_xml
 

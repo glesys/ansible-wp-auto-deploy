@@ -2,3 +2,6 @@
  - name: restart apache2
    service: name=apache2 state=restarted
 
+ - name: restart php7.0-fpm
+   shell: /etc/init.d/php7.0-fpm restart
+
