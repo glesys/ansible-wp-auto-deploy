@@ -13,7 +13,7 @@ This is an automated procedure to:
 
 
 
-Finally, run the script ./deploy.sh (be sure to meet the requirements in the parent's [README.md] (https://github.com/glesys/ansible-wp-auto-deploy/blob/master/README.md) ) and don't forget to put your API Credentials :
+Finally, run the script ./deploy.sh (be sure to meet the requirements in the parent's [README.md](https://github.com/glesys/ansible-wp-auto-deploy/blob/master/README.md) ) and don't forget to put your API Credentials :
 
 ```
 	cd cluster/
@@ -44,8 +44,8 @@ Finally, run the script ./deploy.sh (be sure to meet the requirements in the par
    * [List Domain Records](https://github.com/GleSYS/API/wiki/API-Documentation#domainlistrecords)
    * [Add Domain Record](https://github.com/GleSYS/API/wiki/API-Documentation#domainaddrecord)
    * [Update PTR for IP](https://github.com/GleSYS/API/wiki/API-Documentation#ipsetptr)
-   * [Load Balancer] (https://github.com/GleSYS/API/wiki/API-Documentation#loadbalancer)
-   * [File Storage] (https://github.com/GleSYS/API/wiki/API-Documentation#filestorage)
+   * [Load Balancer](https://github.com/GleSYS/API/wiki/API-Documentation#loadbalancer)
+   * [File Storage](https://github.com/GleSYS/API/wiki/API-Documentation#filestorage)
 
 #Support
 If you need further help send an email to support@glesys.se

@@ -11,7 +11,7 @@ This is an automated procedure to:
 
 
 
-Finally, run the script ./deploy.sh (be sure to meet the requirements in the parent's [README.md] (https://github.com/glesys/ansible-wp-auto-deploy/blob/master/README.md) ) and don't forget to put your API Credentials :
+Finally, run the script ./deploy.sh (be sure to meet the requirements in the parent's [README.md](https://github.com/glesys/ansible-wp-auto-deploy/blob/master/README.md) ) and don't forget to put your API Credentials :
 
 
 ```
