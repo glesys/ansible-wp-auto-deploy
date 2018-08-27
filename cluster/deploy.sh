@@ -419,7 +419,7 @@ while [ $while_var1 -gt 0 ]
 do
 while_var2=$(( $web_num - $while_var1 ))
 echo "Web server: web$(( $while_var2 + 1 )).$FQDN / ${web_servsers[$while_var2]} "
-echo "Web server $(( $while_var2 + 1 )) FTP-user: $ftp_user"
+echo "Web server $(( $while_var2 + 1 )) SSH-user: $ftp_user"
 echo "Web server $(( $while_var2 + 1 )) password: ${FTPUSERPASS_PLAIN[$while_var2]}"
 while_var1=$[$while_var1-1]
 done
@@ -519,7 +519,6 @@ if [[ $domain_in_account == "yes" ]] && [[ $sub_domain == "www" ]] && [[ -z $sub
 fi
 
 if [[ $domain_in_account == "yes" ]] && [[ $record_is_exist == "no" ]] ; then
-    echo 'if [[ $domain_in_account == "yes" ]] && [[ $record_is_exist == "no" ]] ; then'
 	curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "domainname=$main_domain" --data-urlencode "host=$sub_domain" --data-urlencode "type=A" --data-urlencode "data=$LB_IP" https://api.glesys.com/domain/addrecord/ >  /dev/null 2>&1
 	echo "adding the DNS-record for $FQDN to $LB_IP "
 fi
