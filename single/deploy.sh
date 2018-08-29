@@ -72,7 +72,7 @@ DBPASS=`pwgen -Bs 15 1`
 TITLE="WordPress Demo"
 ADMINUSER=$SSHUSER
 ADMINPASS=$SSHUSERPASS_PLAIN
-EMAIL="$FTP_USERNAME@$DOMAIN"
+EMAIL="$FTP_USERNAME@$FQDN"
 
 #API call to retrieve list of records for the domain.
 curl -sS -X POST -d "domainname="$DOMAIN"" -k --basic -u $API_USER:$API_KEY https://api.glesys.com/domain/listrecords/ > server.xml

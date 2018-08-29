@@ -43,7 +43,7 @@ else
 fi
 ### WordPress info. Feel free to edite!
 wp_user="$FTP_USERNAME"
-wp_email="$FTP_USERNAME@$DOMAIN"
+wp_email="$FTP_USERNAME@$FQDN"
 wp_title="DEFAULT TITLE"
 
 
@@ -287,6 +287,11 @@ curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "volumeid=$FS_VO
 ##################
 ## Ansible vars ##
 ##################
+
+	if ! [ -d ~/.ssh ]; then
+       mkdir ~/.ssh
+	fi;
+
 echo "Addning servers IPs to ~/.ssh/known_hosts and fixing PTR"
 db_server=`cat services_details/db_server.xml |  xmlstarlet sel -t -v "/response/server/iplist/item/ipaddress" | head -1 | awk 1 ORS=''`
 # fixing PTR
