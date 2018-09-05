@@ -16,8 +16,8 @@ Finally, run the script ./deploy.sh (be sure to meet the requirements in the par
 
 ```
 	cd single/
-	API_USER="PLACE YOUR GLESYS PROJECT ID HERE" \
-	API_KEY="PLACE YOUR API KEY HERE" \
+	export API_USER="PLACE YOUR GLESYS PROJECT ID HERE"
+	export API_KEY="PLACE YOUR API KEY HERE"
 	./deploy.sh USERNAME FQDN  # (for example: ./deploy.sh wp_user blog.domain.com)
 ```
 

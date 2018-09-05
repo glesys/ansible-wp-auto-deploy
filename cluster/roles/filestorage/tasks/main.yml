@@ -13,7 +13,7 @@
     path: "/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/wp-content/"
     src: "{{ filestorage_ID }}.cloud.glesys.net:/dpool/nfs"
     fstype: nfs
-    opts: rw,sync,hard
+    opts: rw,hard
     state: mounted
     
 - name: change owner 
