@@ -1,6 +1,8 @@
 ---
 - name: Install Apache2 On Debian 8 and down
-  action: apt pkg={{ item }} state=present
+  apt:
+    pkg: "{{ item }}"
+    state: present
   with_items:
   - apache2-mpm-event
   - php5-gd
@@ -11,7 +13,9 @@
   when: ansible_distribution == "Debian" and ansible_distribution_major_version|int < 9
 
 - name: Install Apache2 On Debian 9 and up
-  action: apt pkg={{ item }} state=present
+  apt:
+    pkg: "{{ item }}"
+    state: present
   with_items:
   - apache2
   - php7.0-gd
