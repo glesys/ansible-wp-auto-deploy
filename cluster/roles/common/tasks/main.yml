@@ -3,7 +3,9 @@
    apt: upgrade=dist update_cache=yes
 
  - name: Install common packages
-   action: apt pkg={{ item }} state=present
+   apt:
+     pkg: "{{ item }}"
+     state: present
    with_items:
    - jnettop
    - curl

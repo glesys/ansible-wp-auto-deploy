@@ -1,6 +1,8 @@
 ---
 - name: Install NFS client
-  action: apt pkg={{ item }} state=present
+  apt:
+    pkg: "{{ item }}"
+    state: present
   with_items:
   - nfs-common
   - nfs4-acl-tools

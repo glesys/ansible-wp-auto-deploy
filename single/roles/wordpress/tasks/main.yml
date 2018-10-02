@@ -1,6 +1,8 @@
 ---
 - name: Install Prereq
-  action: apt pkg={{ item }} state=present
+  apt:
+    pkg: "{{ item }}"
+    state: present
   with_items:
   - python-mysqldb
   - sudo
