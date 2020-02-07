@@ -1,9 +1,9 @@
 #!/bin/bash
 # set -x
 ### API Credentials
-# API_USER="PLACE YOUR GLESYS PROJECT ID HERE"   
+# API_USER="PLACE YOUR GLESYS PROJECT ID HERE"
 # API_KEY="PLACE YOUR API KEY HERE"
- 
+
 
 
 
@@ -130,9 +130,9 @@ if [[ $rc -eq 0 ]] ; then
     echo "The Server is up. We can continue with ansible"
 
 		#ANSIBLE VARIABLES
-                echo "---" > hosts.yml
-                echo "[server]" >> hosts.yml
-                echo "$SERVERIP" >> hosts.yml
+                echo "server1 ansible_host=$SERVERIP" > hosts.yml
+                echo "[servers]" >> hosts.yml
+                echo "server1" >> hosts.yml
 
                 echo "---" > global_vars.yml
 		echo "ansible_ssh_pass: $ROOTPASS" >> global_vars.yml

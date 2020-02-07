@@ -1,33 +1,32 @@
 ---
- - name: Upgrade
-   apt: upgrade=dist update_cache=yes
+- name: Upgrade
+  apt: upgrade=dist update_cache=yes
 
- - name: Install common packages
-   apt:
-     pkg: "{{ item }}"
-     state: present
-   with_items:
-   - jnettop
-   - curl
-   - locate
-   - locales-all
-   - git-core
-   - at
-   - vim
-   - htop
-   - net-tools
-   - dnsutils
-   - ntpdate
-   - bc
-   - nano
+- name: Install common packages
+  apt:
+   name:
+      - "jnettop"
+      - "curl"
+      - "locate"
+      - "locales-all"
+      - "git-core"
+      - "at"
+      - "vim"
+      - "htop"
+      - "net-tools"
+      - "dnsutils"
+      - "ntpdate"
+      - "bc"
+      - "nano"
+   state: present
 
- - name: Update hosts file
-   lineinfile:
+
+- name: Update hosts file
+  lineinfile:
      dest: /etc/hosts
      line: '{{ ansible_ip }} {{ ansible_fqdn }}'
 
- - name: locales preed
-   debconf: name=locales question='locales/default_environment_locale' vtype='select' value='en_US.UTF-8'
-   notify:
+- name: locales preed
+  debconf: name=locales question='locales/default_environment_locale' vtype='select' value='en_US.UTF-8'
+  notify:
    - dpkg-reconfigure-locales
-
