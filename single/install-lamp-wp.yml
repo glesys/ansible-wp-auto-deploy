@@ -1,5 +1,5 @@
 ---
- - hosts: server
+ - hosts: all
    vars_files:
       - global_vars.yml
 

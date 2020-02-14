@@ -1,12 +1,11 @@
 ---
 - name: Install Prereq
   apt:
-    pkg: "{{ item }}"
-    state: present
-  with_items:
-  - python-mysqldb
-  - sudo
-  - mysql-client
+   name:
+     - python-mysqldb
+     - sudo
+     - mysql-client
+   state: present
 
 - name: create a new database
   mysql_db: name={{ ansible_dbname }} state=present
@@ -21,7 +20,7 @@
   get_url: url=https://wordpress.org/latest.tar.gz dest=/home/{{ ansible_www_user }}/wordpress-latest.tar.gz force=yes mode=0644
   become: yes
   become_user: "{{ ansible_www_user }}"
- 
+
 - name: extract the wordpress tarball
   unarchive: src=/home/{{ ansible_www_user }}/wordpress-latest.tar.gz dest=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/ copy=no creates=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/
   become: yes
@@ -43,9 +42,6 @@
   shell: chdir=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/ wp core install --title="{{ ansible_wp_title  }}" --url={{ ansible_www_domain }} --admin_name={{ ansible_wp_user  }} --admin_email={{ ansible_wp_email  }} --admin_password={{ ansible_wp_pass  }}
   become: yes
   become_user: "{{ ansible_www_user }}"
-  notify: 
+  notify:
   - restart apache2
   - restart php7.0-fpm
-
-
-
