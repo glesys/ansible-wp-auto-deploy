@@ -2,8 +2,8 @@
 # set -x
 
 ### API Credentials
-# API_USER="PLACE YOUR GLESYS PROJECT ID HERE"   
-# API_KEY="PLACE YOUR API KEY HERE" 
+# API_USER="PLACE YOUR GLESYS PROJECT ID HERE"
+# API_KEY="PLACE YOUR API KEY HERE"
 
 
 
@@ -79,7 +79,7 @@ fi
 
 
 
-#Check if API Credentials are valid 
+#Check if API Credentials are valid
 API_CHECK_CODE=`curl -sS -X POST --basic -u $API_USER:$API_KEY https://api.glesys.com/api/serviceinfo/ | xmlstarlet sel -t -v "/response/status/code"`
 if [ "$API_CHECK_CODE" -ne 200 ]; then
         ERRORCODE=`curl -sS -X POST --basic -u $API_USER:$API_KEY https://api.glesys.com/api/serviceinfo/ |xmlstarlet sel -t -v "/response/status/text" `
@@ -145,7 +145,7 @@ if [[ $? -eq 0 ]] ; then
 fi
 
 while_var1=$web_num
-while [ $while_var1 -gt 0 ] 
+while [ $while_var1 -gt 0 ]
 do
 while_var2=$(( $web_num - $while_var1 ))
 curl -sS -X POST --basic -u $API_USER:$API_KEY https://api.glesys.com/server/list/ | grep ">web$(( $while_var2 + 1 )).$FQDN<" >  /dev/null 2>&1
@@ -184,7 +184,7 @@ echo "creating File-storage ........."
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "datacenter=$DATACENTER" --data-urlencode "name=fs-$FQDN" --data-urlencode "planid=3b2064e5-a216-44d6-abb9-af4d501cb52c" https://api.glesys.com/filestorage/createvolume/ > services_details/filestorage.xml
 
 
-# creating Load Balancer 
+# creating Load Balancer
 echo "creating Load Balancer ........."
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "name=lb-$FQDN" --data-urlencode "ip=any" --data-urlencode "datacenter=$DATACENTER" https://api.glesys.com/loadbalancer/create/ > services_details/lb.xml
 
@@ -195,7 +195,7 @@ curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "datacenter=Falk
 
 # creating web servers.
 while_var1=$web_num
-while [ $while_var1 -gt 0 ] 
+while [ $while_var1 -gt 0 ]
 do
 while_var2=$(( $web_num - $while_var1 ))
 echo "creating web server $(( $while_var2 + 1 )) ........."
@@ -206,13 +206,14 @@ done
 
 # Extra vars
 FS_VOLUMEID=`cat services_details/filestorage.xml  | xmlstarlet sel -t -v "/response/volume/volumeid"`
-LB_ID=`cat services_details/lb.xml | xmlstarlet sel -t -v "/response/loadbalancer/loadbalancerid"` 
-LB_IP=`cat services_details/lb.xml | xmlstarlet sel -t -v "/response/loadbalancer/ipaddress/item/ipaddress"`
+LB_ID=`cat services_details/lb.xml | xmlstarlet sel -t -v "/response/loadbalancer/loadbalancerid"`
+TEMP_LB=`cat services_details/lb.xml | xmlstarlet sel -t -v "/response/loadbalancer/ipaddress/item/ipaddress"`
+LB_IP=$(echo $TEMP_LB | awk '{print $1}')
 DB_SERVERID=`cat services_details/db_server.xml |  xmlstarlet sel -t -v "/response/server/serverid"`
 
 
 while_var1=$web_num
-while [ $while_var1 -gt 0 ] 
+while [ $while_var1 -gt 0 ]
 do
 while_var2=$(( $web_num - $while_var1 ))
 WEB_SERVERID[$while_var2]=`cat services_details/web_server_$(( $while_var2 + 1 )).xml |  xmlstarlet sel -t -v "/response/server/serverid"`
@@ -232,14 +233,14 @@ echo ""
 echo -n " checking the status"
 for i in {0..40}; do  echo -n "." ; sleep 0.05 ; done ; echo "."
 # checking file-storage's status.
-coutdown_=5
+coutdown_=10
 while [ $coutdown_ -gt 0 ]; do
 FS_STATUS=`curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "volumeid=$FS_VOLUMEID" https://api.glesys.com/filestorage/volumedetails/ |  xmlstarlet sel -t -v "/response/volume/status"`
 if [ $FS_STATUS == "ready" ]; then
 coutdown_=0
 echo "File-storage is ready now"
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode  "volumeid=$FS_VOLUMEID" https://api.glesys.com/filestorage/volumedetails/ > services_details/filestorage.xml
-else 
+else
 echo "File-storage not ready yet. $coutdown_ attempts remain" ; wait_1
 fi
    : $((coutdown_--))
@@ -252,18 +253,18 @@ fi
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "serverid=$DB_SERVERID" https://api.glesys.com/server/details/  | grep "<state/>" >  /dev/null 2>&1
 if [[ $? -ne 0 ]] ; then
 echo -e "Something went wrong with the database server! \nPlease remove everything and start over. \nIf this problem appears again please contact support@glesys.se "  >&2; exit 1
-fi 
+fi
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "serverid=$DB_SERVERID" https://api.glesys.com/server/details/  > services_details/db_server.xml
 
 
 while_var1=$web_num
-while [ $while_var1 -gt 0 ] 
+while [ $while_var1 -gt 0 ]
 do
 while_var2=$(( $web_num - $while_var1 ))
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "serverid=${WEB_SERVERID[$while_var2]}" https://api.glesys.com/server/details/  | grep "<state/>" >  /dev/null 2>&1
 if [[ $? -ne 0 ]] ; then
 echo -e "Something went wrong with the web server $(( $while_var2 + 1 )) ! \nPlease remove everything and start over. \nIf this problem appears again please contact support@glesys.se "  >&2; exit 1
-fi 
+fi
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "serverid=${WEB_SERVERID[$while_var2]}" https://api.glesys.com/server/details/  > services_details/web_server_$(( $while_var2 + 1 )).xml
 while_var1=$[$while_var1-1]
 done
@@ -272,7 +273,7 @@ done
 # adding web servers to filestorage accesslist.
 FS_ACCESSLIST="${WEB_SERVERID[0]}"
 while_var1=$(( $web_num - 1 ))
-while [ $while_var1 -gt 0 ] 
+while [ $while_var1 -gt 0 ]
 do
 while_var2=$(( $web_num - $while_var1 ))
 FS_ACCESSLIST="${FS_ACCESSLIST},${WEB_SERVERID[$while_var2]}"
@@ -298,9 +299,9 @@ db_server=`cat services_details/db_server.xml |  xmlstarlet sel -t -v "/response
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "data=db.$FQDN." --data-urlencode "ipaddress=$db_server" https://api.glesys.com/ip/setptr/ >  /dev/null 2>&1
 ssh-keygen -R $db_server >  /dev/null 2>&1
 echo "adding $db_server to ~/.ssh/known_hosts"
-ssh-keyscan -H $db_server >> ~/.ssh/known_hosts 
+ssh-keyscan -H $db_server >> ~/.ssh/known_hosts
 while_var1=$web_num
-while [ $while_var1 -gt 0 ] 
+while [ $while_var1 -gt 0 ]
 do
 while_var2=$(( $web_num - $while_var1 ))
 web_servsers[$while_var2]=`cat services_details/web_server_$(( $while_var2 + 1 )).xml |  xmlstarlet sel -t -v "/response/server/iplist/item/ipaddress" | head -1 | awk 1 ORS=''`
@@ -308,7 +309,7 @@ web_servsers[$while_var2]=`cat services_details/web_server_$(( $while_var2 + 1 )
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "data=web$(( $while_var2 + 1 )).$FQDN." --data-urlencode "ipaddress=${web_servsers[$while_var2]}" https://api.glesys.com/ip/setptr/ >  /dev/null 2>&1
 ssh-keygen -R ${web_servsers[$while_var2]} > /dev/null 2>&1
 echo "adding ${web_servsers[$while_var2]} to ~/.ssh/known_hosts"
-ssh-keyscan -H ${web_servsers[$while_var2]} >> ~/.ssh/known_hosts 
+ssh-keyscan -H ${web_servsers[$while_var2]} >> ~/.ssh/known_hosts
 while_var1=$[$while_var1-1]
 done
 
@@ -318,7 +319,7 @@ echo "Adding BackEnd....."
 curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "loadbalancerid=$LB_ID" --data-urlencode "name=$LB_ID.back" --data-urlencode "mode=http" https://api.glesys.com/loadbalancer/addbackend/ >  /dev/null 2>&1
 sleep 1
 while_var1=$web_num
-while [ $while_var1 -gt 0 ] 
+while [ $while_var1 -gt 0 ]
 do
 while_var2=$(( $web_num - $while_var1 ))
 echo "Adding target $(( $while_var2 + 1 )) ....."
@@ -414,13 +415,13 @@ WP_USER_PASS=`pwgen -Bs 15 1`
 	echo "ansible_wp_pass: $WP_USER_PASS" >> group_vars/all
 	echo "ansible_wp_email: $wp_email" >> group_vars/all
 
-	ansible-playbook -i hosts.yml install.yml 
+	ansible-playbook -i hosts.yml install.yml
 #################################
 echo "Domain name: $www_domain"
 echo "The services that have been created in $DATACENTER are:"
 echo "Database server: db.$FQDN / $db_server"
 while_var1=$web_num
-while [ $while_var1 -gt 0 ] 
+while [ $while_var1 -gt 0 ]
 do
 while_var2=$(( $web_num - $while_var1 ))
 echo "Web server: web$(( $while_var2 + 1 )).$FQDN / ${web_servsers[$while_var2]} "
@@ -491,7 +492,7 @@ if [[ -z $sub_domain ]] ; then
 	sub_domain="www"
 fi
 
-	
+
 
 
 if [[ $domain_in_account == "yes" ]] ; then
@@ -525,7 +526,7 @@ fi
 
 if [[ $domain_in_account == "yes" ]] && [[ $record_is_exist == "no" ]] ; then
 	curl -sS -X POST --basic -u $API_USER:$API_KEY --data-urlencode "domainname=$main_domain" --data-urlencode "host=$sub_domain" --data-urlencode "type=A" --data-urlencode "data=$LB_IP" https://api.glesys.com/domain/addrecord/ >  /dev/null 2>&1
-	echo "adding the DNS-record for $FQDN to $LB_IP "
+  echo "adding the DNS-record for $FQDN to $LB_IP "
 fi
 
 echo "If anything fails when the ansible-playbook runs, please run ( ansible-playbook -i hosts.yml install.yml  ) and see if it solve the problem!!"

@@ -4,22 +4,20 @@
 
  - name: Install common packages
    apt:
-     pkg: "{{ item }}"
-     state: present
-   with_items:
-   - jnettop
-   - curl
-   - locate
-   - locales-all
-   - git-core
-   - at
-   - vim
-   - htop
-   - net-tools
-   - dnsutils
-   - ntpdate
-   - bc
-   - nano
+     pkg:
+     - jnettop
+     - curl
+     - locate
+     - locales-all
+     - git-core
+     - at
+     - vim
+     - htop
+     - net-tools
+     - dnsutils
+     - ntpdate
+     - bc
+     - nano
 
  - name: Update hosts file
    lineinfile:
@@ -30,4 +28,3 @@
    debconf: name=locales question='locales/default_environment_locale' vtype='select' value='en_US.UTF-8'
    notify:
    - dpkg-reconfigure-locales
-

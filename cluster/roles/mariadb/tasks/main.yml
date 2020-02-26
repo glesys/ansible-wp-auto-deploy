@@ -1,14 +1,12 @@
 ---
 - name: MariaDB prereqs
   apt:
-    pkg: "{{ item }}"
-    state: present
-  with_items:
-  - python-mysqldb
+    pkg:
+      - python-mysqldb
 
 - name: Install MariaDB
   apt: pkg=mariadb-server state=present
- 
+
 - name: Bind mysql to all
   replace:
     path: "/etc/mysql/mariadb.conf.d/50-server.cnf"
@@ -16,4 +14,11 @@
     replace: "0.0.0.0"
     backup: yes
   notify:
-  - restart mysql 
+  - restart mysql
+- name: create a new database
+  mysql_db: name={{ ansible_dbname }} state=present
+
+- name: create database user
+  mysql_user: name={{ ansible_dbuser }} password={{ ansible_dbuser_pass }} priv={{ ansible_dbname }}.*:ALL state=present host="{{ item }}"
+  with_items:
+  - "{{ groups['web_servers'] }}"

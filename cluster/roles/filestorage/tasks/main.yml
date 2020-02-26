@@ -1,11 +1,9 @@
 ---
 - name: Install NFS client
   apt:
-    pkg: "{{ item }}"
-    state: present
-  with_items:
-  - nfs-common
-  - nfs4-acl-tools
+    pkg:
+    - nfs-common
+    - nfs4-acl-tools
 
 - name: Create shared folder
   file: path="/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/wp-content/" state=directory mode=0755 owner={{ ansible_www_user }} group={{ ansible_www_user }}
@@ -17,8 +15,8 @@
     fstype: nfs
     opts: rw,hard
     state: mounted
-    
-- name: change owner 
+
+- name: change owner
   file:
     path: "/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/wp-content/"
     owner: "{{ ansible_www_user }}"

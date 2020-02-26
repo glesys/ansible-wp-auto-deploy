@@ -1,13 +1,10 @@
 ---
 - name: Install Prereq
   apt:
-    pkg: "{{ item }}"
-    state: present
-  with_items:
-  - python-mysqldb
-  - sudo
-  - mysql-client
-  when: db_server is not defined 
+    pkg:
+    - python-mysqldb
+    - sudo
+    - mysql-client
 
 - name: create a new database
   mysql_db: name={{ ansible_dbname }} state=present
@@ -15,50 +12,46 @@
 
 - name: create database user
   mysql_user: name={{ ansible_dbuser }} password={{ ansible_dbuser_pass }} priv={{ ansible_dbname }}.*:ALL state=present host="{{ item }}"
-  with_items: 
+  with_items:
   - "{{ groups['web_servers'] }}"
-  when: db_server is defined and db_server == "true" 
+  when: db_server is defined and db_server == "true"
 
 - name: create docroot
   file: dest=/home/{{ ansible_www_user }}/{{ ansible_www_domain }} mode=755 owner={{ ansible_www_user }} group={{ ansible_www_user }} state=directory
-  when: db_server is not defined 
+  when: db_server is not defined
 
 - name: download latest Wordpress tarball
   get_url: url=https://wordpress.org/latest.tar.gz dest=/home/{{ ansible_www_user }}/wordpress-latest.tar.gz force=yes mode=0644
   become: yes
   become_user: "{{ ansible_www_user }}"
-  when: db_server is not defined 
- 
+  when: db_server is not defined
+
 - name: extract the wordpress tarball
-  unarchive: src=/home/{{ ansible_www_user }}/wordpress-latest.tar.gz dest=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/ copy=no creates=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/index.php
+  unarchive:
+    src: /home/{{ ansible_www_user }}/wordpress-latest.tar.gz
+    dest: /home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/
+    copy: no
+    extra_opts: [--strip-components=1]
+    creates: /home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/index.php
   become: yes
   become_user: "{{ ansible_www_user }}"
-  when: db_server is not defined 
+  when: db_server is not defined
 
-- name: Sync wordpress unpacked folder to public_html
-  synchronize: src="/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/wordpress/" dest="/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/"
-  when: db_server is not defined 
-  delegate_to: "{{ inventory_hostname }}"
-
-- name: remove wordpress source 
+- name: remove wordpress source
   file: path="/home/{{ ansible_www_user }}/wordpress/" state=absent
 
 - name: add wp-cli to /usr/local/bin
   copy: src=wp dest=/usr/local/bin/wp mode=755 owner=root group=root
-  when: db_server is not defined 
+  when: db_server is not defined
 
 - name: wp-config.php template
-  template: src=wp-config.php.j2 dest=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/wp-config.php mode=0644 owner={{ ansible_www_user }} group={{ ansible_www_user }}
-  when: db_server is not defined 
+  template: src=templates/wp-config.php.j2 dest=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/wp-config.php mode=0644 owner={{ ansible_www_user }} group={{ ansible_www_user }}
 
 - name: install.php with wp-cli.phar
   shell: chdir=/home/{{ ansible_www_user }}/{{ ansible_www_domain }}/public_html/ wp core install --title="{{ ansible_wp_title  }}" --url={{ ansible_www_domain }} --admin_name={{ ansible_wp_user  }} --admin_email={{ ansible_wp_email  }} --admin_password={{ ansible_wp_pass  }}
   become: yes
   become_user: "{{ ansible_www_user }}"
-  when: db_server is not defined 
-  notify: 
+  when: db_server is not defined
+  notify:
   - restart apache2
   - restart php7.0-fpm
-
-
-
